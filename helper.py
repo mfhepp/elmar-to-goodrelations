@@ -23,6 +23,7 @@ import urllib2 as urllib
 import urllib as urlencode
 from datetime import datetime
 import xml.dom.minidom as dom
+import os
 
 bezahlmethodenCODE={"debit":"DD",
                         "pre-payment":"BBTIA",
@@ -624,3 +625,83 @@ def createPartMainSitemap (base, folder):
         <lastmod>"""+str(datetime.now().replace(microsecond=0).isoformat())+"""</lastmod>
     </sitemap>\n"""
     return data
+
+def createHttpMetaDat(responseInfo, namespace, baseuri, outputdir, foldername):
+    tmp = """<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+    <!DOCTYPE rdf:RDF
+      [<!ENTITY vcard \"http://www.w3.org/2006/vcard/ns#\">
+       <!ENTITY xsd \"http://www.w3.org/2001/XMLSchema#\">
+    ]>
+    <rdf:RDF
+      xmlns:dct=\"http://purl.org/dc/terms/\"
+      xmlns:headers=\"http://www.w3.org/2008/http-headers#\"
+      xmlns:http=\"http://www.w3.org/2006/http#\"
+      xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"
+      xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"
+      xmlns:status=\"http://www.w3.org/2008/http-statusCodes#\"
+      xmlns:void=\"http://rdfs.org/ns/void#\"
+      xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\">
+      xmlns=\"""" + namespace + foldername + """/rdf/meta-information.rdf#\"
+      xml:base=\"""" + baseuri + foldername + """/rdf/meta-information.rdf\">
+
+    <Response rdf:about=\"ResponseMetaData\">\n"""
+    
+    if (responseInfo.getheader('Date')):
+        tmp = tmp + """        <dct:date rdf:datatype=\"&xsd;datetime\">"""+ responseInfo.getheader('Date') +"""</dct:date>\n"""
+    
+    if (responseInfo.getheader('Server')):
+        tmp = tmp + """        <headers rdf:parseType=\"Resource\">
+            <rdf:type rdf:resource=\"&http;MessageHeader\"/>
+            <fieldName>Server</fieldName>
+            <fieldValue>"""+ responseInfo.getheader('Server') +"""</fieldValue>
+        </headers>\n"""
+    
+    if (responseInfo.getheader('Last-Modified')):
+        tmp = tmp + """        <headers rdf:parseType=\"Resource\">
+            <rdf:type rdf:resource=\"&http;MessageHeader\"/>
+            <fieldName>Last-Modified</fieldName>
+            <fieldValue rdf:datatype=\"&xsd;datetime\">"""+ responseInfo.getheader('Last-Modified') +"""</fieldValue>
+        </headers>\n"""
+        
+    if (responseInfo.getheader('Content-Length')):
+        tmp = tmp + """        <headers rdf:parseType=\"Resource\">
+            <rdf:type rdf:resource=\"&http;MessageHeader\"/>
+            <fieldName>Content-Length</fieldName>
+            <fieldValue rdf:datatype=\"&xsd;integer\">"""+ responseInfo.getheader('Content-Length') +"""</fieldValue>
+        </headers>\n"""
+    
+    if (responseInfo.getheader('Content-Type')):
+        tmp = tmp + """        <headers rdf:parseType=\"Resource\">
+            <rdf:type rdf:resource=\"&http;MessageHeader\"/>
+            <fieldName>Content-Type</fieldName>
+            <fieldValue rdf:datatype=\"&xsd;string\">"""+ responseInfo.getheader('Content-Type') +"""</fieldValue>
+        </headers>\n"""
+    
+    if (responseInfo.getheader('ETag')):
+        tmp = tmp + """        <headers rdf:parseType=\"Resource\">
+            <rdf:type rdf:resource=\"&http;MessageHeader\"/>
+            <fieldName>ETag</fieldName>
+            <fieldValue rdf:datatype=\"&xsd;string\">"""+ responseInfo.getheader('ETag') +"""</fieldValue>
+        </headers>\n"""
+    
+    if (responseInfo.getheader('Accept-Ranges')):
+        tmp = tmp + """        <headers rdf:parseType=\"Resource\">
+            <rdf:type rdf:resource=\"&http;MessageHeader\"/>
+            <fieldName>Accept-Ranges</fieldName>
+            <fieldValue rdf:datatype=\"&xsd;string\">"""+ responseInfo.getheader('Accept-Ranges') +"""</fieldValue>
+        </headers>\n"""
+    
+    if (responseInfo.getheader('Connection')):
+        tmp = tmp + """        <headers rdf:parseType=\"Resource\">
+            <rdf:type rdf:resource=\"&http;MessageHeader\"/>
+            <fieldName>Connection</fieldName>
+            <fieldValue rdf:datatype=\"&xsd;string\">"""+ responseInfo.getheader('Connection') +"""</fieldValue>
+        </headers>\n"""
+    
+    tmp = tmp + """        <httpVersion>1.1</httpVersion>
+        <sc rdf:resource=\"http://www.w3.org/2008/http-statusCodes#statusCode200\"/>
+        <statusCodeNumber>200</statusCodeNumber>
+    </Response>"""
+    
+    print tmp
+    return True

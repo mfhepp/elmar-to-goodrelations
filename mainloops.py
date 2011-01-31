@@ -132,8 +132,9 @@ class ShopDaten(object):
                 
         return(i, self.urlseealso, self.name, self.foldername)
         
-    def readShopXML(self, dateiname="input/test_shopinfo.xml"):    
-        datei = urllib.urlopen(dateiname, timeout=self.paramenter.timeout)
+    def readShopXML(self, dateiname="input/test_shopinfo.xml"):
+        req = urllib.Request(url=dateiname, headers = { 'User-Agent' : 'elmar2goodrelations/1.0' })
+        datei = urllib.urlopen(req, timeout=self.paramenter.timeout)
         content = datei.read()           
         baum = dom.parseString(content)
         
@@ -397,9 +398,13 @@ class ShopDaten(object):
             datei=self.updateM.url
                   
         csv.register_dialect("short_life", delimiter=self.updateM.delimiter,quotechar=self.updateM.quoted,escapechar=self.updateM.escaped)
-        dat2 = urllib.urlopen(datei, timeout=self.paramenter.timeout)
+        
+        req = urllib.Request(url=datei, headers = { 'User-Agent' : 'elmar2goodrelations/1.0' })
+        dat2 = urllib.urlopen(req, timeout=self.paramenter.timeout)
         reader = csv.reader(dat2, "short_life")
-            
+        
+        listen.createHttpMetaDat(dat2.info(), self.paramenter.Snamespace, self.paramenter.Sbaseuri, self.paramenter.outputdir, self.foldername)
+         
         for row in reader:
             try:
                 linie = []
