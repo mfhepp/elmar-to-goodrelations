@@ -94,6 +94,7 @@ class ShopDaten(object):
   
     def __init__(self):
         self.updateM     =self.ShopUpdate()
+        self.shopinfourl =""
         self.foldername  =""
         self.clearedname =""   
         self.currency    =""
@@ -118,9 +119,12 @@ class ShopDaten(object):
         self.paymethods  = []
         self.offeringnames=[]                           # In diese Liste werden die IDs der Offerings (normale und spezielle) eingetragen, damit nachtraeglich <gr:offers rdf:ressource...> erstellt werden kann.
         self.testfortitles=""                           # Wird benoetigt, um zu ueberpruefen, ob die erste Zeile eine Titelzeile ist.
+        self.tmpShopMetaData = ""
+        self.tmpProdMetaData = ""
 
 
     def convert(self, datei="input/test_shopinfo.xml"):
+        self.shopinfourl=datei
         self.readShopXML(datei)
         self.readProdCSV()
         self.writeShopRDF()
@@ -209,6 +213,7 @@ class ShopDaten(object):
                     self.foldername=listen.clearedurl(self.urlseealso)
                     if (self.foldername.endswith("/")):
                         self.foldername=self.foldername[:-1]
+                    self.tmpShopMetaData = listen.createHttpMetaDat(datei.info(), self.paramenter, self.foldername, "shop")
     
                 if fetched.nodeName == "Self-Description" and (type(fetched.firstChild).__name__ != "NoneType"):
                     self.description= listen.replace_XMLEntities(fetched.firstChild.data)
@@ -403,7 +408,7 @@ class ShopDaten(object):
         dat2 = urllib.urlopen(req, timeout=self.paramenter.timeout)
         reader = csv.reader(dat2, "short_life")
         
-        listen.createHttpMetaDat(dat2.info(), self.paramenter.Snamespace, self.paramenter.Sbaseuri, self.paramenter.outputdir, self.foldername)
+        self.tmpProdMetaData = listen.createHttpMetaDat(dat2.info(), self.paramenter, self.foldername, "products")
          
         for row in reader:
             try:
@@ -429,12 +434,16 @@ class ShopDaten(object):
        <!ENTITY xsd \"http://www.w3.org/2001/XMLSchema#\">
     ]>
     <rdf:RDF
+      xmlns:dct=\"http://purl.org/dc/terms/\"
       xmlns:foaf=\"http://xmlns.com/foaf/0.1/\"
       xmlns:gr=\"http://purl.org/goodrelations/v1#\"
+      xmlns:http=\"http://www.w3.org/2006/http#\"
       xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"
-      xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"
       xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"
-      xmlns:vcard=\"http://www.w3.org/2006/vcard/ns#\" 
+      xmlns:status=\"http://www.w3.org/2008/http-statusCodes#\"
+      xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"
+      xmlns:vcard=\"http://www.w3.org/2006/vcard/ns#\"
+      xmlns:void=\"http://rdfs.org/ns/void#\" 
       xmlns=\"""" + self.paramenter.Snamespace + self.foldername + """/rdf/shop.rdf#\"
       xml:base=\"""" + self.paramenter.Sbaseuri + self.foldername + """/rdf/shop.rdf\">
     
@@ -458,9 +467,9 @@ class ShopDaten(object):
             fobj.write("    </vcard:Tel>\n  </vcard:tel>\n") 
     
         if self.orderfax.exists == True:
-            fobj.write("""  <vcard:fax>\n      <vcard:Fax rdf:ID=\"order_fax\">  
-        <rdfs:label xml:lang=\"de\">Faxnummer fuer Bestellungen</rdfs:label>
-        <rdf:value>"""+ self.orderfax.number +"""</rdf:value>\n""")
+            fobj.write("""  <vcard:fax>\n    <vcard:Fax rdf:ID=\"order_fax\">  
+      <rdfs:label xml:lang=\"de\">Faxnummer fuer Bestellungen</rdfs:label>
+      <rdf:value>"""+ self.orderfax.number +"""</rdf:value>\n""")
             if self.orderfax.costspm != "":
                 fobj.write("      <rdfs:comment xml:lang=\"de\">" + self.orderfax.costspm + " " + self.orderfax.currency + " pro Minute</rdfs:comment>\n")
             elif self.orderfax.costspc != "":
@@ -468,9 +477,9 @@ class ShopDaten(object):
             fobj.write("    </vcard:Fax>\n  </vcard:fax>\n") 
     
         if self.hotline.exists == True:
-            fobj.write("""  <vcard:tel>\n      <vcard:Tel rdf:ID=\"hotline_tel\">  
-        <rdfs:label xml:lang=\"de\">Telefonhotline</rdfs:label>
-        <rdf:value>"""+ self.hotline.number +"""</rdf:value>\n""")
+            fobj.write("""  <vcard:tel>\n    <vcard:Tel rdf:ID=\"hotline_tel\">  
+      <rdfs:label xml:lang=\"de\">Telefonhotline</rdfs:label>
+      <rdf:value>"""+ self.hotline.number +"""</rdf:value>\n""")
             if self.hotline.costspm != "":
                 fobj.write("      <rdfs:comment xml:lang=\"de\">" + self.hotline.costspm + " " + self.hotline.currency + " pro Minute</rdfs:comment>\n")
             elif self.hotline.costspc != "":
@@ -539,6 +548,13 @@ class ShopDaten(object):
             else:
                 fobj.write("<gr:LocationOfSalesOrServiceProvisioning rdf:ID=\"LOSOSP_2\">\n  <rdfs:label xml:lang=\"" + self.language + "\">" + self.name + "</rdfs:label>\n  <vcard:adr rdf:resource=\"#address_2\"/>\n</gr:LocationOfSalesOrServiceProvisioning>\n")
 
+        if (self.tmpShopMetaData!=""):
+            fobj.write("""<void:Dataset rdf:about=\"""" + self.paramenter.Snamespace + self.foldername + """/rdf/products.rdf#dataset\">
+     <dct:source rdf:resource=\"""" + self.shopinfourl + """\"/> 
+     <rdfs:seeAlso rdf:resource=\"""" + self.paramenter.Snamespace + self.foldername + """/rdf/products.rdf#ResponseMetaData\"/>
+</void:Dataset>\n\n""" + self.tmpShopMetaData + """\n\n""")
+        
+        
         fobj.write("\n</rdf:RDF>")
         fobj.close()
         
@@ -554,11 +570,15 @@ class ShopDaten(object):
       <!ENTITY xsd \"http://www.w3.org/2001/XMLSchema#\">
     ]>
     <rdf:RDF
+      xmlns:dct=\"http://purl.org/dc/terms/\"
       xmlns:foaf=\"http://xmlns.com/foaf/0.1/\"
       xmlns:gr=\"http://purl.org/goodrelations/v1#\"
+      xmlns:http=\"http://www.w3.org/2006/http#\"
       xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"
+      xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"
+      xmlns:status=\"http://www.w3.org/2008/http-statusCodes#\"
       xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"
-      xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\" 
+      xmlns:void=\"http://rdfs.org/ns/void#\"
       xmlns=\"""" + self.paramenter.Snamespace + self.foldername + """/rdf/products.rdf#\"
       xml:base=\"""" + self.paramenter.Sbaseuri + self.foldername + """/rdf/products.rdf\">\n\n""")
       
@@ -776,6 +796,12 @@ class ShopDaten(object):
             for each in self.offeringnames:
                 fobj.write("  <gr:offers rdf:resource=\"#" + each + "\"/>\n")
             fobj.write("</gr:BusinessEntity>\n")
+        
+        if (self.tmpProdMetaData!=""):
+            fobj.write("""\n<void:Dataset rdf:about=\"""" + self.paramenter.Snamespace + self.foldername + """/rdf/products.rdf#dataset\">
+     <dct:source rdf:resource=\"""" + self.updateM.url + """\"/> 
+     <rdfs:seeAlso rdf:resource=\"""" + self.paramenter.Snamespace + self.foldername + """/rdf/products.rdf#ResponseMetaData\"/>
+</void:Dataset>\n"""+ self.tmpProdMetaData + """\n""")
             
         fobj.write("</rdf:RDF>")
         fobj.close()

@@ -25,6 +25,19 @@ from datetime import datetime
 import xml.dom.minidom as dom
 import os
 
+httpMonthsToNumbers={"jan": "01",
+                     "feb": "02",
+                     "mar": "03",
+                     "apr": "04",
+                     "may": "05",
+                     "jun": "06",
+                     "jul": "07",
+                     "aug": "08",
+                     "sep": "09",
+                     "oct": "10",
+                     "nov": "11",
+                     "dec": "12"}
+
 bezahlmethodenCODE={"debit":"DD",
                         "pre-payment":"BBTIA",
                         "money transfer":"BBTIA",
@@ -626,82 +639,92 @@ def createPartMainSitemap (base, folder):
     </sitemap>\n"""
     return data
 
-def createHttpMetaDat(responseInfo, namespace, baseuri, outputdir, foldername):
-    tmp = """<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-    <!DOCTYPE rdf:RDF
-      [<!ENTITY vcard \"http://www.w3.org/2006/vcard/ns#\">
-       <!ENTITY xsd \"http://www.w3.org/2001/XMLSchema#\">
-    ]>
-    <rdf:RDF
-      xmlns:dct=\"http://purl.org/dc/terms/\"
-      xmlns:headers=\"http://www.w3.org/2008/http-headers#\"
-      xmlns:http=\"http://www.w3.org/2006/http#\"
-      xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"
-      xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\"
-      xmlns:status=\"http://www.w3.org/2008/http-statusCodes#\"
-      xmlns:void=\"http://rdfs.org/ns/void#\"
-      xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\">
-      xmlns=\"""" + namespace + foldername + """/rdf/meta-information.rdf#\"
-      xml:base=\"""" + baseuri + foldername + """/rdf/meta-information.rdf\">
-
-    <Response rdf:about=\"ResponseMetaData\">\n"""
-    
-    if (responseInfo.getheader('Date')):
-        tmp = tmp + """        <dct:date rdf:datatype=\"&xsd;datetime\">"""+ responseInfo.getheader('Date') +"""</dct:date>\n"""
-    
-    if (responseInfo.getheader('Server')):
-        tmp = tmp + """        <headers rdf:parseType=\"Resource\">
-            <rdf:type rdf:resource=\"&http;MessageHeader\"/>
-            <fieldName>Server</fieldName>
-            <fieldValue>"""+ responseInfo.getheader('Server') +"""</fieldValue>
-        </headers>\n"""
-    
-    if (responseInfo.getheader('Last-Modified')):
-        tmp = tmp + """        <headers rdf:parseType=\"Resource\">
-            <rdf:type rdf:resource=\"&http;MessageHeader\"/>
-            <fieldName>Last-Modified</fieldName>
-            <fieldValue rdf:datatype=\"&xsd;datetime\">"""+ responseInfo.getheader('Last-Modified') +"""</fieldValue>
-        </headers>\n"""
+def httpDateToXsdDateTime(httpdate):
+    tmp = ""
+    try:
+        tmp = httpdate[12:16]+"-"+httpMonthsToNumbers[httpdate[8:11].lower()]+"-"+httpdate[5:7]+"T"+httpdate[17:25]+"Z"
         
-    if (responseInfo.getheader('Content-Length')):
-        tmp = tmp + """        <headers rdf:parseType=\"Resource\">
-            <rdf:type rdf:resource=\"&http;MessageHeader\"/>
-            <fieldName>Content-Length</fieldName>
-            <fieldValue rdf:datatype=\"&xsd;integer\">"""+ responseInfo.getheader('Content-Length') +"""</fieldValue>
-        </headers>\n"""
+    except Exception, e:
+        tmp = ""
     
-    if (responseInfo.getheader('Content-Type')):
-        tmp = tmp + """        <headers rdf:parseType=\"Resource\">
-            <rdf:type rdf:resource=\"&http;MessageHeader\"/>
-            <fieldName>Content-Type</fieldName>
-            <fieldValue rdf:datatype=\"&xsd;string\">"""+ responseInfo.getheader('Content-Type') +"""</fieldValue>
-        </headers>\n"""
-    
-    if (responseInfo.getheader('ETag')):
-        tmp = tmp + """        <headers rdf:parseType=\"Resource\">
-            <rdf:type rdf:resource=\"&http;MessageHeader\"/>
-            <fieldName>ETag</fieldName>
-            <fieldValue rdf:datatype=\"&xsd;string\">"""+ responseInfo.getheader('ETag') +"""</fieldValue>
-        </headers>\n"""
-    
-    if (responseInfo.getheader('Accept-Ranges')):
-        tmp = tmp + """        <headers rdf:parseType=\"Resource\">
-            <rdf:type rdf:resource=\"&http;MessageHeader\"/>
-            <fieldName>Accept-Ranges</fieldName>
-            <fieldValue rdf:datatype=\"&xsd;string\">"""+ responseInfo.getheader('Accept-Ranges') +"""</fieldValue>
-        </headers>\n"""
-    
-    if (responseInfo.getheader('Connection')):
-        tmp = tmp + """        <headers rdf:parseType=\"Resource\">
-            <rdf:type rdf:resource=\"&http;MessageHeader\"/>
-            <fieldName>Connection</fieldName>
-            <fieldValue rdf:datatype=\"&xsd;string\">"""+ responseInfo.getheader('Connection') +"""</fieldValue>
-        </headers>\n"""
-    
-    tmp = tmp + """        <httpVersion>1.1</httpVersion>
-        <sc rdf:resource=\"http://www.w3.org/2008/http-statusCodes#statusCode200\"/>
-        <statusCodeNumber>200</statusCodeNumber>
-    </Response>"""
-    
-    print tmp
-    return True
+    return tmp
+  
+def createHttpMetaDat(responseInfo, paramenter, foldername, prodorshop):
+    tmp = ""
+    try:
+        if (responseInfo.getheader('ETag').startswith("'") or responseInfo.getheader('ETag').startswith('"')):
+            etag = responseInfo.getheader('ETag')[1:-1]
+        else:
+            etag = responseInfo.getheader('ETag')
+            
+        tmp = """<void:Dataset rdf:about=\""""+ paramenter.Snamespace + foldername + """/rdf/""" + prodorshop + """.rdf#dataset\">
+    <rdfs:seeAlso>
+        <http:Response rdf:about=\"""" + paramenter.Snamespace + foldername + """/rdf/""" + prodorshop + """.rdf#ResponseMetaData\">
+            <http:httpVersion>1.1</http:httpVersion>
+            <http:statusCodeNumber>200</http:statusCodeNumber>
+            <http:sc rdf:resource=\"http://www.w3.org/2008/http-statusCodes#statusCode200\" />\n"""
+        
+        if (responseInfo.getheader('Date')):
+            tmp = tmp + """            <dct:date rdf:datatype=\"&xsd;datetime\">"""+ httpDateToXsdDateTime(responseInfo.getheader('Date')) +"""</dct:date>\n"""
+        
+        if (responseInfo.getheader('Server')):
+            tmp = tmp + """            <http:headers>
+                <http:MessageHeader>
+                    <http:fieldName>Server</http:fieldName>
+                    <http:fieldValue>"""+ responseInfo.getheader('Server') +"""</http:fieldValue>
+                </http:MessageHeader>
+            </http:headers>\n"""
+        
+        if (responseInfo.getheader('Last-Modified')):
+            tmp = tmp + """            <http:headers>
+                <http:MessageHeader>
+                    <http:fieldName>Last-Modified</http:fieldName>
+                    <http:fieldValue rdf:datatype=\"&xsd;datetime\">"""+ httpDateToXsdDateTime(responseInfo.getheader('Last-Modified')) +"""</http:fieldValue>
+                </http:MessageHeader>
+            </http:headers>\n"""
+            
+        if (responseInfo.getheader('Content-Length')):
+            tmp = tmp + """            <http:headers>
+                <http:MessageHeader>
+                    <http:fieldName>Content-Length</http:fieldName>
+                    <http:fieldValue rdf:datatype=\"&xsd;integer\">"""+ responseInfo.getheader('Content-Length') +"""</http:fieldValue>
+                </http:MessageHeader>
+            </http:headers>\n"""
+        
+        if (responseInfo.getheader('Content-Type')):
+            tmp = tmp + """            <http:headers>
+                <http:MessageHeader>
+                    <http:fieldName>Content-Type</http:fieldName>
+                    <http:fieldValue>"""+ responseInfo.getheader('Content-Type') +"""</http:fieldValue>
+                </http:MessageHeader>
+            </http:headers>\n"""
+        
+        if (responseInfo.getheader('ETag')):
+            tmp = tmp + """            <http:headers>
+                <http:MessageHeader>
+                    <http:fieldName>ETag</http:fieldName>
+                    <http:fieldValue rdf:datatype=\"&xsd;string\">"""+ etag +"""</http:fieldValue>
+                </http:MessageHeader>
+            </http:headers>\n"""
+        
+        if (responseInfo.getheader('Accept-Ranges')):
+            tmp = tmp + """            <http:headers>
+                <http:MessageHeader>
+                    <http:fieldName>Accept-Ranges</http:fieldName>
+                    <http:fieldValue rdf:datatype=\"&xsd;string\">"""+ responseInfo.getheader('Accept-Ranges') +"""</http:fieldValue>
+                </http:MessageHeader>
+            </http:headers>\n"""
+                        
+        if (responseInfo.getheader('Connection')):
+            tmp = tmp + """            <http:headers>
+                <http:MessageHeader>
+                    <http:fieldName>Accept-Ranges</http:fieldName>
+                    <http:fieldValue rdf:datatype=\"&xsd;string\">"""+ responseInfo.getheader('Connection') +"""</http:fieldValue>
+                </http:MessageHeader>
+            </http:headers>\n"""
+        tmp = tmp + """        </http:Response>\n    </rdfs:seeAlso>\n</void:Dataset>"""
+
+    except Exception, e:
+        tmp = ""
+
+    return tmp
