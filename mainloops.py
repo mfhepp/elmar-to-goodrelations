@@ -216,7 +216,7 @@ class ShopDaten(object):
                     self.tmpShopMetaData = listen.createHttpMetaDat(datei.info(), self.paramenter, self.foldername, "shop")
     
                 if fetched.nodeName == "Self-Description" and (type(fetched.firstChild).__name__ != "NoneType"):
-                    self.description= listen.replace_XMLEntities(fetched.firstChild.data)
+                    self.description = listen.replace_XMLEntities(listen.stripHTMLTags(fetched.firstChild.data))
                 if fetched.nodeName == "Logo" and (type(fetched.firstChild).__name__ != "NoneType"):
                     self.urllogo=listen.replace_XMLEntities(fetched.firstChild.data)
             
@@ -688,8 +688,8 @@ class ShopDaten(object):
                 print "compcomment unicode(runner) Error."
                 compcomment = u""
             
-            complabel = listen.replace_XMLEntities(complabel)
-            compcomment = listen.replace_XMLEntities(compcomment)
+            complabel = listen.replace_XMLEntities(listen.stripHTMLTags(complabel))
+            compcomment = listen.replace_XMLEntities(listen.stripHTMLTags(compcomment))
             
             fobj.write("""      <gr:typeOfGood>
         <gr:ProductOrServicesSomeInstancesPlaceholder rdf:ID=\"ProductOrServicesSomeInstancesPlaceholder_"""+str(i)+"""\">

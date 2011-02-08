@@ -24,6 +24,7 @@ import urllib as urlencode
 from datetime import datetime
 import xml.dom.minidom as dom
 import os
+import re
 
 httpMonthsToNumbers={"jan": "01",
                      "feb": "02",
@@ -728,3 +729,8 @@ def createHttpMetaDat(responseInfo, paramenter, foldername, prodorshop):
         tmp = ""
 
     return tmp
+
+def stripHTMLTags (html):
+    x = re.compile(r'<[^<]*?/?>')
+    text = x.sub('', html)
+    return text
