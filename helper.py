@@ -455,15 +455,15 @@ def createStringDeliverable(deliverable, number):
    
 def createStringSpecialOffers(feature, unfree, theLink, currency):
     if (feature=="InstallationAssistance"):
-        theLabel ="<rdfs:label xml:lang=\"de\">Installationsservice</rdfs:label>"
+        theLabel ="<gr:name xml:lang=\"de\">Installationsservice</gr:name>"
         theBusFu ="<gr:hasBusinessFunction rdf:resource=\"http://purl.org/goodrelations/v1#ConstructionInstallation\"/>"
         if (unfree==True):
-            theComment = "<rdfs:comment xml:lang=\"de\">Es wird ein kostenpflichtiger Installationsservice angeboten.</rdfs:comment>"
+            theComment = "<gr:description xml:lang=\"de\">Es wird ein kostenpflichtiger Installationsservice angeboten.</gr:description>"
             theID = "<gr:Offering rdf:ID=\"Offering_S01\">"
             theOfferingName = "Offering_S01"
             thePrice = ""
         else:
-            theComment = "<rdfs:comment xml:lang=\"de\">Es wird ein kostenloser Installationsservice angeboten.</rdfs:comment>"
+            theComment = "<gr:description xml:lang=\"de\">Es wird ein kostenloser Installationsservice angeboten.</gr:description>"
             theID = "<gr:Offering rdf:ID=\"Offering_S02\">"
             theOfferingName = "Offering_S02"
             thePrice = """    <gr:hasPriceSpecification>
@@ -475,15 +475,15 @@ def createStringSpecialOffers(feature, unfree, theLink, currency):
   </gr:hasPriceSpecification>\n"""
             
     if (feature=="RepairService"):
-        theLabel ="<rdfs:label xml:lang=\"de\">Reparaturservice</rdfs:label>"
+        theLabel ="<gr:name xml:lang=\"de\">Reparaturservice</gr:name>"
         theBusFu ="<gr:hasBusinessFunction rdf:resource=\"http://purl.org/goodrelations/v1#Repair\"/>"
         if (unfree==True):
-            theComment = "<rdfs:comment xml:lang=\"de\">Es wird ein kostenpflichtiger Reparaturservice angeboten.</rdfs:comment>"
+            theComment = "<gr:description xml:lang=\"de\">Es wird ein kostenpflichtiger Reparaturservice angeboten.</gr:description>"
             theID = "<gr:Offering rdf:ID=\"Offering_S03\">"
             theOfferingName = "Offering_S03"
             thePrice = ""
         else:
-            theComment = "<rdfs:comment xml:lang=\"de\">Es wird ein kostenloser Reparaturservice angeboten.</rdfs:comment>"
+            theComment = "<gr:description xml:lang=\"de\">Es wird ein kostenloser Reparaturservice angeboten.</gr:description>"
             theID = "<gr:Offering rdf:ID=\"Offering_S04\">"
             theOfferingName = "Offering_S04"
             thePrice = """    <gr:hasPriceSpecification>
@@ -495,15 +495,15 @@ def createStringSpecialOffers(feature, unfree, theLink, currency):
   </gr:hasPriceSpecification>\n"""
                     
     if (feature=="CareAfterPurchase"):
-        theLabel ="<rdfs:label xml:lang=\"de\">Dienstleistungen nach dem Kauf</rdfs:label>"
+        theLabel ="<gr:name xml:lang=\"de\">Dienstleistungen nach dem Kauf</gr:name>"
         theBusFu ="<gr:hasBusinessFunction rdf:resource=\"http://purl.org/goodrelations/v1#Maintain\"/>"
         if (unfree==True):
-            theComment = "<rdfs:comment xml:lang=\"de\">Es werden kostenpflichtige Dienstleistungen nach dem Kauf angeboten.</rdfs:comment>"
+            theComment = "<gr:description xml:lang=\"de\">Es werden kostenpflichtige Dienstleistungen nach dem Kauf angeboten.</gr:description>"
             theID = "<gr:Offering rdf:ID=\"Offering_S05\">"
             theOfferingName = "Offering_S05"
             thePrice = ""
         else:
-            theComment = "<rdfs:comment xml:lang=\"de\">Es werden kostenlose Dienstleistungen nach dem Kauf angeboten.</rdfs:comment>"
+            theComment = "<gr:description xml:lang=\"de\">Es werden kostenlose Dienstleistungen nach dem Kauf angeboten.</gr:description>"
             theID = "<gr:Offering rdf:ID=\"Offering_S06\">"
             theOfferingName = "Offering_S06"
             thePrice = """    <gr:hasPriceSpecification>
@@ -515,15 +515,15 @@ def createStringSpecialOffers(feature, unfree, theLink, currency):
   </gr:hasPriceSpecification>\n"""
             
     if (feature=="GiftService"):
-        theLabel ="<rdfs:label xml:lang=\"de\">Geschenkeservice</rdfs:label>"
+        theLabel ="<gr:name xml:lang=\"de\">Geschenkeservice</gr:name>"
         theBusFu ="<gr:hasBusinessFunction rdf:resource=\"http://purl.org/goodrelations/v1#ProvideService\"/>"
         if (unfree==True):
-            theComment = "<rdfs:comment xml:lang=\"de\">Es wird ein kostenpflichtiger Geschenkeservice angeboten.</rdfs:comment>"
+            theComment = "<gr:description xml:lang=\"de\">Es wird ein kostenpflichtiger Geschenkeservice angeboten.</gr:description>"
             theID = "<gr:Offering rdf:ID=\"Offering_S07\">"
             theOfferingName = "Offering_S07"
             thePrice = ""
         else:
-            theComment = "<rdfs:comment xml:lang=\"de\">Es wird ein kostenloser Geschenkeservice angeboten.</rdfs:comment>"
+            theComment = "<gr:description xml:lang=\"de\">Es wird ein kostenloser Geschenkeservice angeboten.</gr:description>"
             theID = "<gr:Offering rdf:ID=\"Offering_S08\">"
             theOfferingName = "Offering_S08"
             thePrice = """    <gr:hasPriceSpecification>

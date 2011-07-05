@@ -449,13 +449,13 @@ class ShopDaten(object):
     
 <gr:BusinessEntity rdf:ID=\"BusinessEntity\">\n""")
         if self.name != "":
-            fobj.write("  <rdfs:label xml:lang=\"" + self.language + "\">" + self.name + "</rdfs:label>\n")
+            fobj.write("  <gr:name xml:lang=\"" + self.language + "\">" + self.name + "</gr:name>\n")
         if self.urlseealso != "":
             fobj.write("  <foaf:page rdf:resource=\"" + self.urlseealso + "\"/>\n")
         if self.urllogo != "":
             fobj.write("  <foaf:depiction rdf:resource=\"" + self.urllogo + "\"/>\n")
         if self.description != "":
-            fobj.write("  <rdfs:comment xml:lang=\"" + self.language + "\">" + self.description + "</rdfs:comment>\n")
+            fobj.write("  <gr:description xml:lang=\"" + self.language + "\">" + self.description + "</gr:description>\n")
         if self.orderphone.exists == True:
             fobj.write("""  <vcard:tel>\n    <vcard:Tel rdf:ID=\"order_tel\">
       <rdfs:label xml:lang=\"de\">Telefonnummer fuer Bestellungen</rdfs:label>
@@ -538,15 +538,15 @@ class ShopDaten(object):
     
         if self.adress1.sale == "yes":
             if self.adress1.hasgeo == True:
-                fobj.write("<gr:LocationOfSalesOrServiceProvisioning rdf:ID=\"LOSOSP_1\">\n  <rdfs:label xml:lang=\"" + self.language + "\">" + self.name + "</rdfs:label>\n  <vcard:adr rdf:resource=\"#address_1\"/>\n  <vcard:geo rdf:resource=\"#geoAddress_1\"/>\n</gr:LocationOfSalesOrServiceProvisioning>\n")
+                fobj.write("<gr:Location rdf:ID=\"LOSOSP_1\">\n  <rdfs:label xml:lang=\"" + self.language + "\">" + self.name + "</rdfs:label>\n  <vcard:adr rdf:resource=\"#address_1\"/>\n  <vcard:geo rdf:resource=\"#geoAddress_1\"/>\n</gr:Location>\n")
             else:
-                fobj.write("<gr:LocationOfSalesOrServiceProvisioning rdf:ID=\"LOSOSP_1\">\n  <rdfs:label xml:lang=\"" + self.language + "\">" + self.name + "</rdfs:label>\n  <vcard:adr rdf:resource=\"#address_1\"/>\n</gr:LocationOfSalesOrServiceProvisioning>\n")
+                fobj.write("<gr:Location rdf:ID=\"LOSOSP_1\">\n  <rdfs:label xml:lang=\"" + self.language + "\">" + self.name + "</rdfs:label>\n  <vcard:adr rdf:resource=\"#address_1\"/>\n</gr:Location>\n")
                 
         if self.adress2.sale == "yes":
             if self.adress2.hasgeo == True:
-                fobj.write("<gr:LocationOfSalesOrServiceProvisioning rdf:ID=\"LOSOSP_2\">\n  <rdfs:label xml:lang=\"" + self.language + "\">" + self.name + "</rdfs:label>\n  <vcard:adr rdf:resource=\"#address_2\"/>\n  <vcard:geo rdf:resource=\"#geoAddress_2\"/>\n</gr:LocationOfSalesOrServiceProvisioning>\n")
+                fobj.write("<gr:Location rdf:ID=\"LOSOSP_2\">\n  <rdfs:label xml:lang=\"" + self.language + "\">" + self.name + "</rdfs:label>\n  <vcard:adr rdf:resource=\"#address_2\"/>\n  <vcard:geo rdf:resource=\"#geoAddress_2\"/>\n</gr:Location>\n")
             else:
-                fobj.write("<gr:LocationOfSalesOrServiceProvisioning rdf:ID=\"LOSOSP_2\">\n  <rdfs:label xml:lang=\"" + self.language + "\">" + self.name + "</rdfs:label>\n  <vcard:adr rdf:resource=\"#address_2\"/>\n</gr:LocationOfSalesOrServiceProvisioning>\n")
+                fobj.write("<gr:Location rdf:ID=\"LOSOSP_2\">\n  <rdfs:label xml:lang=\"" + self.language + "\">" + self.name + "</rdfs:label>\n  <vcard:adr rdf:resource=\"#address_2\"/>\n</gr:Location>\n")
 
         if (self.tmpShopMetaData!=""):
             fobj.write("""<void:Dataset rdf:about=\"""" + self.paramenter.Snamespace + self.foldername + """/rdf/products.rdf#dataset\">
@@ -616,8 +616,8 @@ class ShopDaten(object):
                 self.herstdict.update({schluessel: wert})
                 
                 fobj.write("""<gr:BusinessEntity rdf:ID=\""""+wert+"""\"> 
-  <rdfs:label xml:lang=\""""+self.language+"""\">"""+schluessel+"""</rdfs:label>
-  <rdfs:comment xml:lang=\""""+self.language+"""\">"""+schluessel+"""</rdfs:comment>
+  <gr:name xml:lang=\""""+self.language+"""\">"""+schluessel+"""</gr:name>
+  <gr:description xml:lang=\""""+self.language+"""\">"""+schluessel+"""</gr:description>
 </gr:BusinessEntity>\n""")
                 counter+=1
             
@@ -692,11 +692,11 @@ class ShopDaten(object):
             compcomment = listen.replace_XMLEntities(listen.stripHTMLTags(compcomment))
             
             fobj.write("""      <gr:typeOfGood>
-        <gr:ProductOrServicesSomeInstancesPlaceholder rdf:ID=\"ProductOrServicesSomeInstancesPlaceholder_"""+str(i)+"""\">
-          <rdfs:label xml:lang=\""""+self.language+"""\">"""+complabel+"""</rdfs:label>\n""")
+        <gr:SomeItems rdf:ID=\"SomeItems_"""+str(i)+"""\">
+          <gr:name xml:lang=\""""+self.language+"""\">"""+complabel+"""</gr:name>\n""")
             
             if not(compcomment == ""):
-                fobj.write(u"""          <rdfs:comment xml:lang=\""""+self.language+"""\">"""+compcomment+"""</rdfs:comment>\n""")
+                fobj.write(u"""          <gr:description xml:lang=\""""+self.language+"""\">"""+compcomment+"""</gr:description>\n""")
             if (("privateid" in self.updateM.spalten) and (runner[self.updateM.spalten["privateid"]-1]<>"")):
                 fobj.write("""          <gr:hasStockKeepingUnit rdf:datatype=\"&xsd;string\">"""+runner[self.updateM.spalten["privateid"]-1]+"""</gr:hasStockKeepingUnit>\n""")
             if (("ean" in self.updateM.spalten) and (runner[self.updateM.spalten["ean"]-1]<>"")):
@@ -714,16 +714,16 @@ class ShopDaten(object):
             if (("pictureurl" in self.updateM.spalten) and (runner[self.updateM.spalten["pictureurl"]-1]<>"")):
                 fobj.write("""          <foaf:depiction rdf:resource=\""""+listen.replace_XMLEntities(runner[self.updateM.spalten["pictureurl"]-1])+"""\"/>\n""")
                 
-            fobj.write("""        </gr:ProductOrServicesSomeInstancesPlaceholder>
+            fobj.write("""        </gr:SomeItems>
       </gr:typeOfGood>
     </gr:TypeAndQuantityNode>
   </gr:includesObject>\n\n""")            
                             
             fobj.write("""  <gr:hasBusinessFunction rdf:resource=\"http://purl.org/goodrelations/v1#Sell\"/>
-  <rdfs:label xml:lang=\""""+self.language+"""\">"""+complabel+"""</rdfs:label>\n""")
+  <gr:name xml:lang=\""""+self.language+"""\">"""+complabel+"""</gr:name>\n""")
             
             if not(compcomment == ""):
-                fobj.write(u"""  <rdfs:comment xml:lang=\""""+self.language+"""\">"""+compcomment+"""</rdfs:comment>\n""")
+                fobj.write(u"""  <gr:description xml:lang=\""""+self.language+"""\">"""+compcomment+"""</gr:description>\n""")
             if (("url" in self.updateM.spalten) and (runner[self.updateM.spalten["url"]-1]<>"")):
                 fobj.write(u"""  <foaf:page rdf:resource=\""""+listen.replace_XMLEntities(runner[self.updateM.spalten["url"]-1])+"""\"/>\n""")
             if (("pictureurl" in self.updateM.spalten) and (runner[self.updateM.spalten["pictureurl"]-1]<>"")):
